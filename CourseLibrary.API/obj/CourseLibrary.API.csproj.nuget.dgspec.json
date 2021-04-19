@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\JOSE ANTONIO\\source\\repos\\AdvancedRESTful concerns\\src\\CourseLibrary.API\\CourseLibrary.API.csproj": {}
+    "C:\\Users\\JOSE ANTONIO\\Documents\\GitHub\\Course-Library-Advanced-\\CourseLibrary.API\\CourseLibrary.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\JOSE ANTONIO\\source\\repos\\AdvancedRESTful concerns\\src\\CourseLibrary.API\\CourseLibrary.API.csproj": {
+    "C:\\Users\\JOSE ANTONIO\\Documents\\GitHub\\Course-Library-Advanced-\\CourseLibrary.API\\CourseLibrary.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\JOSE ANTONIO\\source\\repos\\AdvancedRESTful concerns\\src\\CourseLibrary.API\\CourseLibrary.API.csproj",
+        "projectUniqueName": "C:\\Users\\JOSE ANTONIO\\Documents\\GitHub\\Course-Library-Advanced-\\CourseLibrary.API\\CourseLibrary.API.csproj",
         "projectName": "CourseLibrary.API",
-        "projectPath": "C:\\Users\\JOSE ANTONIO\\source\\repos\\AdvancedRESTful concerns\\src\\CourseLibrary.API\\CourseLibrary.API.csproj",
+        "projectPath": "C:\\Users\\JOSE ANTONIO\\Documents\\GitHub\\Course-Library-Advanced-\\CourseLibrary.API\\CourseLibrary.API.csproj",
         "packagesPath": "C:\\Users\\JOSE ANTONIO\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\JOSE ANTONIO\\source\\repos\\AdvancedRESTful concerns\\src\\CourseLibrary.API\\obj\\",
+        "outputPath": "C:\\Users\\JOSE ANTONIO\\Documents\\GitHub\\Course-Library-Advanced-\\CourseLibrary.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

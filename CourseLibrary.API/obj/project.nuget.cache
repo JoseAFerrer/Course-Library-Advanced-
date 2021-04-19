@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "PVUhOdE7Gu/YxvA2wB/AU4p9C/S3SELz/ruW9RuHOCQVNAxgVJ6HcHbHNZqT4H3oVgJarOZbueKpkSCqbBM9eg==",
+  "dgSpecHash": "s4kKwY05m+buCVbETwY7sb0ieExZkn6d9fgRIafGfHim08DKgj5q9G6qnHJSpZSGH5qFfVKQGTck4Ma6dr+vlQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\JOSE ANTONIO\\source\\repos\\AdvancedRESTful concerns\\src\\CourseLibrary.API\\CourseLibrary.API.csproj",
+  "projectFilePath": "C:\\Users\\JOSE ANTONIO\\Documents\\GitHub\\Course-Library-Advanced-\\CourseLibrary.API\\CourseLibrary.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\JOSE ANTONIO\\.nuget\\packages\\automapper\\10.1.1\\automapper.10.1.1.nupkg.sha512",
     "C:\\Users\\JOSE ANTONIO\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\8.1.1\\automapper.extensions.microsoft.dependencyinjection.8.1.1.nupkg.sha512",
