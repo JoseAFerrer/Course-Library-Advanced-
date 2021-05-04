@@ -14,6 +14,9 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Linq;
+using Raven.Client.Documents;
+using Raven.Client.Documents.Conventions;
+using Raven.Client.Documents.Indexes;
 
 namespace CourseLibrary.API
 {
@@ -39,6 +42,19 @@ namespace CourseLibrary.API
                 validationModelOptions.MustRevalidate = true;
             });
             services.AddResponseCaching();
+            
+            var (dbSettings, cert) = DatabaseSetting.FromConfig(Configuration);
+            var store = new DocumentStore
+            {
+                Urls = dbSettings.Urls,
+                Database = dbSettings.DatabaseName,
+                Certificate = cert
+            }.Initialize();
+
+            IndexCreation.CreateIndexes(typeof(Startup).Assembly, store);
+            services.AddSingleton(store);
+
+            // services.AddRavenDbSingleInstanceMigrations(typeof(Startup).Assembly);
 
             services.AddControllers(setupAction =>
             {

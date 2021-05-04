@@ -6,6 +6,7 @@ using CourseLibrary.API.ResourceParameters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CourseLibrary.API.Services
 {
@@ -22,7 +23,7 @@ namespace CourseLibrary.API.Services
                 throw new ArgumentNullException(nameof(propertyMappingService));
         }
 
-        public void AddCourse(Guid authorId, Course course)
+        public Task AddCourse(Guid authorId, Course course)
         {
             if (authorId == Guid.Empty)
             {
