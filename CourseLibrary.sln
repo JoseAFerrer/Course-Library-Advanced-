@@ -10,6 +10,8 @@ ProjectSection(SolutionItems) = preProject
 	docker-compose.yml = docker-compose.yml
 EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Course.Finance", "Course.Finance\Course.Finance.csproj", "{077B8336-7342-4116-B6F0-EFE3DE17B750}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{6F25D24A-8C56-4E15-AF75-9671E27BF6C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F25D24A-8C56-4E15-AF75-9671E27BF6C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F25D24A-8C56-4E15-AF75-9671E27BF6C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{077B8336-7342-4116-B6F0-EFE3DE17B750}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{077B8336-7342-4116-B6F0-EFE3DE17B750}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{077B8336-7342-4116-B6F0-EFE3DE17B750}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{077B8336-7342-4116-B6F0-EFE3DE17B750}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
