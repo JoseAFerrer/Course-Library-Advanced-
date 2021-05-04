@@ -2,3 +2,5 @@
 .idea/
 
 CourseLibrary.API/obj/
+
+.idea/CourseLibrary.API/bin/
