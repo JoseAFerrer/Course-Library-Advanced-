@@ -2,6 +2,6 @@
 .idea/
 CourseLibrary.API/obj/
 CourseLibrary.API/bin/
-.vs/CourseLibrary/v16/.suo
+.vs
 CourseLibrary.API/bin/Debug/netcoreapp3.1/CourseLibrary.API.dll
 CourseLibrary.API/bin/Debug/netcoreapp3.1/CourseLibrary.API.pdb
