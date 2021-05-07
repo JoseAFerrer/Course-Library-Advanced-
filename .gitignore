@@ -1,6 +1,8 @@
 
 .idea/
 CourseLibrary.API/obj/
+CourseLibrary.Finance/obj/
+CourseLibrary.Finance/bin/
 CourseLibrary.API/bin/
 .vs
 CourseLibrary.API/bin/Debug/netcoreapp3.1/CourseLibrary.API.dll
