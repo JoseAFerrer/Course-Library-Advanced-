@@ -36,7 +36,10 @@ namespace CourseLibrary.API.Services
             }
             // always set the AuthorId to the passed-in authorId
             course.AuthorId = authorId;
-            _context.Courses.Add(course); 
+            _context.Courses.Add(course);
+
+            //Solución provisional (Help from Joao)
+            return Task.CompletedTask;
         }         
 
         public void DeleteCourse(Course course)
