@@ -10,6 +10,8 @@ namespace Course.Finance.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public IEnumerable<FinanceCourse> CoursesBought { get; set; }
+        public IEnumerable<Transaction> PastTransactions { get; set; }
         public DateTimeOffset LastActiveOn { get; set; }
     }
+
 }

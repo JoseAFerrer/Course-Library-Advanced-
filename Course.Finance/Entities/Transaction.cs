@@ -10,7 +10,7 @@ namespace Course.Finance.Entities
         public Guid Id { get; set; }
         public Customer Buyer { get; set; }
         public IEnumerable<FinanceCourse> BoughtCourses { get; set; }
-        public double TotalValue { get; set; }
+        public double TotalValue = 0.00;
         public DateTimeOffset TransactionTime { get; set; }
     }
 }

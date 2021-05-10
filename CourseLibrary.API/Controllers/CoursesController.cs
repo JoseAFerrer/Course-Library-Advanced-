@@ -33,6 +33,7 @@ namespace CourseLibrary.API.Controllers
             _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
         }
+
         [HttpGet(Name = "GetCoursesForAuthor")]
         public ActionResult<IEnumerable<CourseDto>> GetCoursesForAuthor(Guid authorId)
         {
