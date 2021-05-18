@@ -31,6 +31,8 @@ namespace CourseLibrary.API.Services
         {
             using var session = _documentStore.OpenAsyncSession();
             
+
+            //Crear el Id del curso
             course.AuthorId = authorId;
             await session.StoreAsync(course);
             await session.SaveChangesAsync();

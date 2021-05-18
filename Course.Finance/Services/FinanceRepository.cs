@@ -11,9 +11,7 @@ namespace Course.Finance.Services
     {
         private readonly FinanceCourse MockCourse = new FinanceCourse
         {
-            AuthorId = Guid.NewGuid(),
             Title = "Potatoes",
-            Description = "Potatoes go well with everything",
             Id = Guid.NewGuid()
     };
         private readonly RavenDbCoursesRepository _ravenRepo;
@@ -36,31 +34,24 @@ namespace Course.Finance.Services
             //Something like...
             // var listedcourses =_ravenRepo.GetCourses(authorId);
 
-            return listedcourses;
+            return listedcourses; //Aquí solo querríamos mostrar los cursos resumidos; ShortCourse
         }
 
-        public Transaction BuyCourses(IEnumerable<Guid> buyingCoursesId, string name)
+        public Transaction BuyCourses(IEnumerable<Guid> buyingCoursesId, Guid buyerId)
         {
-            double value = 0;
             var buyingCourses = new List<FinanceCourse>() { MockCourse };
-            var buyer = MockCustomer; //AJUSTAR ESTO MUCHO.
 
-            foreach (var course in buyingCourses)
+            Transaction currentOp = new Transaction(buyerId)
             {
-                value += course.Price;
-            }
-            Transaction currentOp = new Transaction
-            {
-                Id = Guid.NewGuid(),
                 TransactionTime = DateTimeOffset.UtcNow,
-                TotalValue = value,
-                Buyer = buyer,
                 BoughtCourses = buyingCourses
-        };
-
+            };
+            currentOp.TotalValue = currentOp.TotalPrice();
 
             //Algo que añada al historial del cliente el curso que ha comprado
             // y lo guarde en la base de datos (!)
+
+
             return currentOp;
         }
 
@@ -71,14 +62,16 @@ namespace Course.Finance.Services
             return customer.CoursesBought;
         }
 
-        public IEnumerable<Transaction> CheckTransactionsForCustomer(Customer customer)
+        public IEnumerable<Transaction> CheckTransactionsForCustomer(Customer customer) //Pedir por Id
         {
-            return customer.PastTransactions;
+            //return customer.PastTransactions;
+            throw new NotImplementedException();
         }
 
         public void DeleteEveryTransaction(Customer customer)
         {
-            customer.PastTransactions = null;
+            //customer.PastTransactions = null;
+            throw new NotImplementedException();
         }
     }
 }
