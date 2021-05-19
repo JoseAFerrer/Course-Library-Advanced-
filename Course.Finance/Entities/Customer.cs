@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Course.Finance.Entities
 {
-    public class Customer //Podría ser un resumen de la información contenida en un User.
+    public class Customer //Podría ser un resumen de la información contenida en un User. Si hubiera un User en algún otro sitio.
     {
         public Guid Id { get; set; }
         public string FirstName { get; set; }
