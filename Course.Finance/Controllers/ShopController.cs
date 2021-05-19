@@ -37,10 +37,11 @@ namespace Course.Finance.Controllers
             return Ok(allCourses);
         }
 
-        [HttpGet(Name = "Transactions/{Id}")] //Utilizamos simplemente el nombre del recurso, la acción se intuye por el verbo Rest.
-        public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactionHistory(Guid Id) //Pasar el Id
+        [HttpGet(Name = "Transactions/{Id}")] //Utilizamos simplemente el nombre del recurso, la acción se intuye por el verbo http.
+        public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactionHistory(Guid guidId) //Pasar el Id
         {
-            // var pastTransactions = _financeRepo.CheckTransactionsForCustomer(Id);
+            string Id = guidId.ToString();
+
             using var session = _documentStore.OpenAsyncSession();
 
             var pastTransactions = await session.Query<Transaction>()
@@ -51,29 +52,36 @@ namespace Course.Finance.Controllers
         }
 
         [HttpPost(Name ="BuyCourses")]
-        public async Task<ActionResult<Transaction>> BuyCourses(IEnumerable<Guid> coursesIds, Guid buyerId)
+        public async Task<ActionResult<Transaction>> BuyCourses(IEnumerable<Guid> guidCoursesIds, Guid guidBuyerId)
         {
+            var coursesIds = new List<string>();
+            foreach (var id in guidCoursesIds) //No estoy seguro de que esto sea lo más eficiente, pero funcionar debería funcionar.
+            {//¿Y si la entrada del método fuera una string? ¿O eso es problemático porque dejaría entrar cosas que tal vez no son Guids?
+                coursesIds.Add(id.ToString());
+            }
+            var buyerId = guidBuyerId.ToString();
+
             using var session = _documentStore.OpenAsyncSession();
 
             var buyingCourses = await session
                 .Query<FinanceCourse>()
                 .OfType<FinanceCourse>()
-                .Where(x => coursesIds.Contains(x.Id) ) //Sácame un curso solo si esta lista de ids contiene su id. Does it work?
+                .Where(x => coursesIds.Contains(x.Id)) //Sácame un curso solo si esta lista de ids contiene su id. Does it work?
                 .ToListAsync();
 
-            //Obtener los cursos sencillitos de la base de datos. No parece muy óptimo pero no se me ocurre otra manera de momento.
+            //Obtener los cursos sencillitos de la base de datos
             var transaction = new Transaction()
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.NewGuid().ToString(),
                 BuyerId = buyerId,
                 BoughtCourses = buyingCourses,
                 TransactionTime = DateTimeOffset.UtcNow
             };
-            transaction.TotalValue = transaction.TotalPrice(); //Should this method also be async?
 
             await session.StoreAsync(transaction); //No hay return type?
+            await session.SaveChangesAsync();
 
-            return Ok();
+            return Ok(transaction);
         }
 
     }

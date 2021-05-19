@@ -47,7 +47,6 @@ namespace Course.Finance.Services
                 TransactionTime = DateTimeOffset.UtcNow,
                 BoughtCourses = buyingCourses
             };
-            currentOp.TotalValue = currentOp.TotalPrice();
 
             //Algo que añada al historial del cliente el curso que ha comprado
             // y lo guarde en la base de datos (!)

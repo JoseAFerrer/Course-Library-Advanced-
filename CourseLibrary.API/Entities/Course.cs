@@ -7,7 +7,7 @@ namespace CourseLibrary.API.Entities
     public class Course
     {
         [Key]       
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } //Refactorizar a string (!)
 
         [Required]
         [MaxLength(100)]
