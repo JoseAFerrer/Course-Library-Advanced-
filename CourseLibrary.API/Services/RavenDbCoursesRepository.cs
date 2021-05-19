@@ -18,7 +18,6 @@ namespace CourseLibrary.API.Services
             _documentStore = documentStore;
         }
 
-
         public async Task<IEnumerable<Course>> GetCourses(Guid authorId)
         {
             using var session = _documentStore.OpenAsyncSession();

@@ -47,7 +47,7 @@ namespace CourseLibrary.API.Services
             _context.Courses.Remove(course);
         }
   
-        public Course GetCourse(Guid authorId, Guid courseId)
+        public async Task<Course> GetCourse(Guid authorId, Guid courseId)
         {
             if (authorId == Guid.Empty)
             {
@@ -59,11 +59,11 @@ namespace CourseLibrary.API.Services
                 throw new ArgumentNullException(nameof(courseId));
             }
 
-            return _context.Courses
+            return   _context.Courses
               .Where(c => c.AuthorId == authorId && c.Id == courseId).FirstOrDefault();
         }
 
-        public IEnumerable<Course> GetCourses(Guid authorId)
+        public async Task<IEnumerable<Course>> GetCourses(Guid authorId)
         {
             if (authorId == Guid.Empty)
             {
@@ -184,7 +184,7 @@ namespace CourseLibrary.API.Services
                 .ToList();
         }
 
-        public void UpdateAuthor(Author author)
+        public async void UpdateAuthor(Author author)
         {
             // no code in this implementation
         }

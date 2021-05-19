@@ -98,7 +98,7 @@ namespace CourseLibrary.API.Controllers
                 return NotFound();
             }
 
-            var courseForAuthorFromRepo = _courseLibraryRepository.GetCourse(authorId, courseId);
+            var courseForAuthorFromRepo = _courseLibraryRepository.GetCourse(authorId, courseId).Result;
             if (courseForAuthorFromRepo == null)
             {//If the course doesn't exist yet, we "update it" by creating it:
                 var courseToAdd = _mapper.Map<Entities.Course>(course);
@@ -176,7 +176,7 @@ namespace CourseLibrary.API.Controllers
 
             _mapper.Map(courseToPatch, courseForAuthorFromRepo);
 
-            _courseLibraryRepository.UpdateCourse(courseForAuthorFromRepo);
+            _courseLibraryRepository.UpdateCourse(courseForAuthorFromRepo.Result);
 
             _courseLibraryRepository.Save();
 
@@ -197,7 +197,7 @@ namespace CourseLibrary.API.Controllers
             if(courseForAuthorFromRepo ==null)
             { return NotFound(); }
 
-            _courseLibraryRepository.DeleteCourse(courseForAuthorFromRepo);
+            _courseLibraryRepository.DeleteCourse(courseForAuthorFromRepo.Result);
             _courseLibraryRepository.Save();
 
             return NoContent();

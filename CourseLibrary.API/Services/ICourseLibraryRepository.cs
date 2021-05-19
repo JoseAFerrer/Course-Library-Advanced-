@@ -9,8 +9,8 @@ namespace CourseLibrary.API.Services
 {
     public interface ICourseLibraryRepository
     {    
-        IEnumerable<Course> GetCourses(Guid authorId);
-        Course GetCourse(Guid authorId, Guid courseId);
+        Task<IEnumerable<Course>> GetCourses(Guid authorId);
+        Task<Course> GetCourse(Guid authorId, Guid courseId);
         Task AddCourse(Guid authorId, Course course);
         void UpdateCourse(Course course);
         void DeleteCourse(Course course);

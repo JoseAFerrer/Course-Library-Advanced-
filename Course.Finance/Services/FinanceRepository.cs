@@ -12,7 +12,7 @@ namespace Course.Finance.Services
         private readonly FinanceCourse MockCourse = new FinanceCourse
         {
             Title = "Potatoes",
-            Id = Guid.NewGuid()
+            Id = Guid.NewGuid().ToString()
     };
         private readonly RavenDbCoursesRepository _ravenRepo;
         public Customer MockCustomer = new Customer
@@ -43,7 +43,7 @@ namespace Course.Finance.Services
 
             Transaction currentOp = new Transaction()
             {
-                BuyerId =buyerId,
+                BuyerId = buyerId.ToString(),
                 TransactionTime = DateTimeOffset.UtcNow,
                 BoughtCourses = buyingCourses
             };
