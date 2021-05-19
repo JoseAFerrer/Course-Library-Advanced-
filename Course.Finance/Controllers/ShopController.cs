@@ -10,7 +10,9 @@ using System.Threading.Tasks;
 namespace Course.Finance.Controllers
 {
     [ApiController]
-    [Route("api/shop")]
+    [Route("api/shop")] //Lo óptimo sería que cada controlador solo se encargara de un "tipo" de tarea o una entidad y sus satélites.
+    // No hace falta cambiarlo pero sería lo suyo que cada uno se centrara en un grupo de cosas. TransactionController, FinanceCourse.
+    // El controlador sirve recursos para _esa_ entidad (y posiblemente sus satélites).
     public class ShopController : ControllerBase
     {
         private readonly FinanceRepository _financeRepo;
@@ -43,17 +45,35 @@ namespace Course.Finance.Controllers
 
             var pastTransactions = await session.Query<Transaction>()
                 .Where(x => x.BuyerId == Id)
-                .OfType<Transaction>().ToListAsync(); //El OfType es por si antes has utilizado un índice, al especificar la Query
+                .OfType<Transaction>().ToListAsync(); 
 
             return Ok(pastTransactions);
         }
 
         [HttpPost(Name ="BuyCourses")]
-        public ActionResult<Transaction> BuyCourses(IEnumerable<Guid> coursesIds, Guid buyerId)
+        public async Task<ActionResult<Transaction>> BuyCourses(IEnumerable<Guid> coursesIds, Guid buyerId)
         {
-            var currentOp = _financeRepo.BuyCourses(coursesIds, buyerId);
+            using var session = _documentStore.OpenAsyncSession();
 
-            return Ok(currentOp);
+            var buyingCourses = await session
+                .Query<FinanceCourse>()
+                .OfType<FinanceCourse>()
+                .Where(x => coursesIds.Contains(x.Id) ) //Sácame un curso solo si esta lista de ids contiene su id. Does it work?
+                .ToListAsync();
+
+            //Obtener los cursos sencillitos de la base de datos. No parece muy óptimo pero no se me ocurre otra manera de momento.
+            var transaction = new Transaction()
+            {
+                Id = Guid.NewGuid(),
+                BuyerId = buyerId,
+                BoughtCourses = buyingCourses,
+                TransactionTime = DateTimeOffset.UtcNow
+            };
+            transaction.TotalValue = transaction.TotalPrice(); //Should this method also be async?
+
+            await session.StoreAsync(transaction); //No hay return type?
+
+            return Ok();
         }
 
     }

@@ -41,8 +41,9 @@ namespace Course.Finance.Services
         {
             var buyingCourses = new List<FinanceCourse>() { MockCourse };
 
-            Transaction currentOp = new Transaction(buyerId)
+            Transaction currentOp = new Transaction()
             {
+                BuyerId =buyerId,
                 TransactionTime = DateTimeOffset.UtcNow,
                 BoughtCourses = buyingCourses
             };

@@ -7,13 +7,13 @@ namespace Course.Finance.Entities
 {
     public class Transaction
     {
-        public Transaction(Guid buyerId)
-        {
-            Id = Guid.NewGuid();
-            BuyerId = buyerId;
-        }
-        public Guid Id { get; private set; }
-        public Guid BuyerId { get; private set; } //Solo utilizamos el Id del comprador, no cargamos mucha información.
+        //public Transaction(Guid buyerId)
+        //{
+        //    Id = Guid.NewGuid();
+        //    BuyerId = buyerId;
+        //}
+        public Guid Id { get; set; }
+        public Guid BuyerId { get; set; } //Solo utilizamos el Id del comprador, no cargamos mucha información.
         public IEnumerable<FinanceCourse> BoughtCourses { get; set; } //Guardamos los cursos simpli.
         public double TotalValue { get; set; } 
         public DateTimeOffset TransactionTime { get; set; }
