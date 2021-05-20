@@ -63,12 +63,17 @@ namespace CourseLibrary.API.Services
 
             await session.StoreAsync(course); //Directamente guardamos el dato nuevo.
 
+
             await session.SaveChangesAsync();
         }
 
-        public void DeleteCourse(Course course)
+        public async void DeleteCourse(Course course)
         {
-            throw new NotImplementedException();
+            using var session = _documentStore.OpenAsyncSession();
+
+            session.Delete<Course>(course); //Cannot await void?
+
+            await session.SaveChangesAsync();
         }
 
         public IEnumerable<Author> GetAuthors()
