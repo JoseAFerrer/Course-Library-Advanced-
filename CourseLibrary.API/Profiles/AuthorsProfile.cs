@@ -24,6 +24,20 @@ namespace CourseLibrary.API.Profiles
             CreateMap<Models.AuthorForCreationWithDateOfDeathDto, Entities.Author>();
 
             CreateMap<Entities.Author, Models.AuthorFullDto>();
+
+            //And now, let's get to the maps that convert from entities (courses) to persistence models.
+
+            CreateMap<Entities.Author, Persistence.PersistenceModels.AuthorDocument>()
+                .ForMember(destinationMember => destinationMember.Id,
+                opts => opts.MapFrom(source => source.Id.ToString()))
+                .ForMember(destinationMember => destinationMember.Courses,
+                opts => opts.MapFrom(source => source.Courses)); //¿Habría que invocar el otro mapping, el de cursos? Dudas, grandes dudas.
+
+            CreateMap<Persistence.PersistenceModels.AuthorDocument, Entities.Author>()
+                .ForMember(destinationMember => destinationMember.Id,
+                options => options.MapFrom(source => Guid.Parse(source.Id)))
+                .ForMember(destinationMember => destinationMember.Courses,
+                options => options.MapFrom(source => source.Courses)); //¿El Parse está bien puesto o sobra?;
         }
     }
 }

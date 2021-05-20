@@ -96,24 +96,63 @@ namespace CourseLibrary.API.Services
             await session.SaveChangesAsync();
         }
 
-        public IEnumerable<Author> GetAuthors()
+        public async Task<IEnumerable<Author>> GetAuthors()
         {
-            throw new NotImplementedException();
-        }
+            using var session = _documentStore.OpenAsyncSession();
 
+            var authorsFromDb = await session.Query<AuthorDocument>().OfType<AuthorDocument>().ToListAsync();
+
+            var authors = new List<Author>();
+
+            foreach (AuthorDocument authorDB in authorsFromDb)
+            {
+                authors.Add(_mapper.Map<Author>(authorDB));
+            }
+
+            return authors;
+        }
+        //Not implemented
         public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
         {
             throw new NotImplementedException();
         }
 
-        public Author GetAuthor(Guid authorId)
+        public async Task<Author> GetAuthor(Guid authorId)
         {
-            throw new NotImplementedException();
+            var id = authorId.ToString();
+
+            using var session = _documentStore.OpenAsyncSession();
+
+            var authorFromDB = await session.LoadAsync<AuthorDocument>(id);
+
+            var author = _mapper.Map<Author>(authorFromDB);
+
+            return author;
         }
 
-        public IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds)
+        public async Task<IEnumerable<Author>> GetAuthors(IEnumerable<Guid> authorIds)
         {
-            throw new NotImplementedException();
+            var ids = new List<string>();
+            foreach (var id in authorIds)
+            {
+                ids.Add(id.ToString());
+            }
+            using var session = _documentStore.OpenAsyncSession();
+
+            var authorsFromDb = await session
+                .Query<AuthorDocument>()
+                .Where(x => ids.Contains(x.Id))
+                .OfType<AuthorDocument>()
+                .ToListAsync();
+
+            var authors = new List<Author>();
+
+            foreach (AuthorDocument authorDB in authorsFromDb)
+            {
+                authors.Add(_mapper.Map<Author>(authorDB));
+            }
+
+            return authors;
         }
 
         public void AddAuthor(Author author)
