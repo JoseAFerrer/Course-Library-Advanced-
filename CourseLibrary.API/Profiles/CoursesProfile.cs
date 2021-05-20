@@ -15,6 +15,21 @@ namespace CourseLibrary.API.Profiles
             CreateMap<Models.CourseForUpdateDto, Entities.Course>();
             CreateMap<Entities.Course, Models.CourseForUpdateDto >();
 
+            //And now, let's get to the maps that convert from entities to persistence models.
+
+            _ = CreateMap<Entities.Course, Persistence.PersistenceModels.CourseDocument>()
+                .ForMember(destinationMember => destinationMember.Id,
+                opts => opts.MapFrom(source => source.Id.ToString())) //Intellicode dice que podría poner MapExpression, pero no estoy seguro de ello.
+                .ForMember(destinationMember => destinationMember.AuthorId,
+                opts => opts.MapFrom(source => source.AuthorId.ToString())); //¿El ToString está bien puesto o sobra?
+            
+            CreateMap<Persistence.PersistenceModels.CourseDocument, Entities.Course>()
+                .ForMember(destinationMember => destinationMember.Id,
+                options => options.MapFrom(source => Guid.Parse(source.Id)))
+                .ForMember(destinationMember => destinationMember.AuthorId,
+                options => options.MapFrom(source => Guid.Parse(source.AuthorId))); //¿El Parse está bien puesto o sobra?;
+
+
         }
     }
 }

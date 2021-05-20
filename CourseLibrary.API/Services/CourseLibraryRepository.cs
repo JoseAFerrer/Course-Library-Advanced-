@@ -184,7 +184,7 @@ namespace CourseLibrary.API.Services
                 .ToList();
         }
 
-        public async void UpdateAuthor(Author author)
+        public void UpdateAuthor(Author author)
         {
             // no code in this implementation
         }

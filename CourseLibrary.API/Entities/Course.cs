@@ -7,7 +7,7 @@ namespace CourseLibrary.API.Entities
     public class Course
     {
         [Key]       
-        public Guid Id { get; set; } //Refactorizar a string (!)
+        public Guid Id { get; set; } //Refactorizar a string no es necesario porque hemos creado un modelo específico para la persistencia.
 
         [Required]
         [MaxLength(100)]
