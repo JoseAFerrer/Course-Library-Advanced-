@@ -20,7 +20,7 @@ namespace CourseLibrary.API.Services
 
         private IList<IPropertyMapping> _propertyMappings = new List<IPropertyMapping>();
 
-        public PropertyMappingService()
+        public PropertyMappingService() //CONSTRUCTOR
         {
             _propertyMappings.Add(new PropertyMapping<AuthorDto, Author>(_authorPropertyMapping));
         }

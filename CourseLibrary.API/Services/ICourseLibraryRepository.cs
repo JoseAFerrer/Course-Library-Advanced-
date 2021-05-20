@@ -11,7 +11,7 @@ namespace CourseLibrary.API.Services
     {    
         Task<IEnumerable<Course>> GetCourses(Guid authorId);
         Task<Course> GetCourse(Guid authorId, Guid courseId);
-        Task AddCourse(Guid authorId, Course course);
+        Task<Course> AddCourse(Guid authorId, Course course);
         void UpdateCourse(Course course);
         void DeleteCourse(Course course);
         IEnumerable<Author> GetAuthors();

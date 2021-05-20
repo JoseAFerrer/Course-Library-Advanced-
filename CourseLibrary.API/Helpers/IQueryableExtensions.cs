@@ -50,6 +50,7 @@ namespace CourseLibrary.API.Helpers
                     trimmedOrderByClause : trimmedOrderByClause.Remove(indexOfFirstSpace); //Removes everything after the specified position
 
                 //Find the matching property
+                ///////////////////////////// MAPPING
                 if (!mappingDictionary.ContainsKey(propertyName))
                 {
                     throw new ArgumentException($"Key mapping for {propertyName} is missing");

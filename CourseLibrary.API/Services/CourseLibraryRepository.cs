@@ -23,7 +23,7 @@ namespace CourseLibrary.API.Services
                 throw new ArgumentNullException(nameof(propertyMappingService));
         }
 
-        public Task AddCourse(Guid authorId, Course course)
+        public async Task<Course> AddCourse(Guid authorId, Course course) //Si pongo el async deja de dar problemas, pero me parece que es trampa.
         {
             if (authorId == Guid.Empty)
             {
@@ -39,7 +39,7 @@ namespace CourseLibrary.API.Services
             _context.Courses.Add(course);
 
             //Solución provisional (Help from Joao)
-            return Task.CompletedTask;
+            return course;
         }         
 
         public void DeleteCourse(Course course)
