@@ -239,7 +239,7 @@ namespace CourseLibrary.API.Controllers
         [HttpDelete("{authorId}", Name ="DeleteAuthor")]
         public ActionResult DeleteAuthor(Guid authorId)
         {
-            var authorFromRepo = _courseLibraryRepository.GetAuthor(authorId);
+            var authorFromRepo = _courseLibraryRepository.GetAuthor(authorId).Result;
 
             if (authorFromRepo ==null)
             {

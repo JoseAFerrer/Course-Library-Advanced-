@@ -62,12 +62,13 @@ namespace CourseLibrary.API.Services
 
         public async Task<Course> AddCourse(Guid authorId, Course course)
         {
-            using var session = _documentStore.OpenAsyncSession();
-
             course.Id = Guid.NewGuid(); //Pasar a .ToString();
             course.AuthorId = authorId;
 
             var courseToDB = _mapper.Map<CourseDocument>(course);
+
+            using var session = _documentStore.OpenAsyncSession();
+
             await session.StoreAsync(courseToDB);
             await session.SaveChangesAsync();
 
@@ -111,6 +112,7 @@ namespace CourseLibrary.API.Services
 
             return authors;
         }
+        
         //Not implemented
         public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
         {
@@ -155,24 +157,48 @@ namespace CourseLibrary.API.Services
             return authors;
         }
 
-        public void AddAuthor(Author author)
+        public async void AddAuthor(Author author)
         {
-            throw new NotImplementedException();
+            author.Id = Guid.NewGuid();
+
+            var authorToDB = _mapper.Map<CourseDocument>(author);
+
+            using var session = _documentStore.OpenAsyncSession();
+            await session.StoreAsync(authorToDB);
+            await session.SaveChangesAsync();
         }
 
-        public void DeleteAuthor(Author author)
+        public async void DeleteAuthor(Author author)
         {
-            throw new NotImplementedException();
+            author.Id = Guid.NewGuid();
+
+            var authorToDB = _mapper.Map<CourseDocument>(author);
+
+            using var session = _documentStore.OpenAsyncSession();
+            session.Delete(authorToDB);
+            await session.SaveChangesAsync();
         }
 
-        public void UpdateAuthor(Author author)
+        public async void UpdateAuthor(Author author)
         {
-            throw new NotImplementedException();
+            var authorToDB = _mapper.Map<CourseDocument>(author);
+
+            using var session = _documentStore.OpenAsyncSession();
+            await session.StoreAsync(authorToDB);
+            await session.SaveChangesAsync();
         }
 
         public bool AuthorExists(Guid authorId)
         {
-            throw new NotImplementedException();
+            var id = authorId.ToString();
+
+            using var session = _documentStore.OpenAsyncSession();
+            var authorFromDB =  session.LoadAsync<AuthorDocument>(id).Result; //Podemos hacerlo async o así. Sospecho que async es más elegante.
+            if (authorFromDB != null)
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool Save()

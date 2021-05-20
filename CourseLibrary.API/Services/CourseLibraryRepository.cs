@@ -118,7 +118,7 @@ namespace CourseLibrary.API.Services
             _context.Authors.Remove(author);
         }
         
-        public Author GetAuthor(Guid authorId)
+        public async Task<Author> GetAuthor(Guid authorId)
         {
             if (authorId == Guid.Empty)
             {
@@ -128,7 +128,7 @@ namespace CourseLibrary.API.Services
             return _context.Authors.FirstOrDefault(a => a.Id == authorId);
         }
 
-        public IEnumerable<Author> GetAuthors()
+        public async Task<IEnumerable<Author>> GetAuthors() //This way it still works the same but it doesn't complain a lot.
         {
             return _context.Authors.ToList<Author>();
         }
@@ -171,7 +171,7 @@ namespace CourseLibrary.API.Services
                 authorsResourceParameters.PageSize); //We are using deferred execution inside the method: the query doesn't execute until we get here
         }
 
-        public IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds)
+        public async Task<IEnumerable<Author>> GetAuthors(IEnumerable<Guid> authorIds)
         {
             if (authorIds == null)
             {

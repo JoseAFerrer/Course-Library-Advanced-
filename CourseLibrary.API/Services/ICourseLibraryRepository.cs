@@ -14,10 +14,10 @@ namespace CourseLibrary.API.Services
         Task<Course> AddCourse(Guid authorId, Course course);
         void UpdateCourse(Course course);
         void DeleteCourse(Course course);
-        IEnumerable<Author> GetAuthors();
+        Task<IEnumerable<Author>> GetAuthors();
         PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters); //Filtering by categories! And paginating
-        Author GetAuthor(Guid authorId);
-        IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds);
+        Task<Author> GetAuthor(Guid authorId);
+        Task<IEnumerable<Author>> GetAuthors(IEnumerable<Guid> authorIds);
         void AddAuthor(Author author);
         void DeleteAuthor(Author author);
         void UpdateAuthor(Author author);

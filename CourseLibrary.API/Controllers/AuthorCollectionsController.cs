@@ -36,7 +36,7 @@ namespace CourseLibrary.API.Controllers
                 return BadRequest();
             }
 
-            var authorEntities = _courseLibraryRepository.GetAuthors(ids);
+            var authorEntities = _courseLibraryRepository.GetAuthors(ids).Result; //Originally, the .Result wasn't needed, but it's the best I can think of.
 
             if (ids.Count() != authorEntities.Count())
             {
