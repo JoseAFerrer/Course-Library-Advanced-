@@ -14,11 +14,6 @@ namespace CourseLibrary.API.Persistence.PersistenceModels
         public DateTimeOffset DateOfBirth { get; set; }
         public DateTimeOffset? DateOfDeath { get; set; }
         public string MainCategory { get; set; }
-        public ICollection<string> CoursesIds { get; set; }
-            = new List<string>();
-
-        [JsonIgnore]
-        public ICollection<Entities.Course> Courses { get; set; }
-     = new List<Entities.Course>(); //Todo: ver si esto es necesario cuando cree el segundo mapping.
+        public List<string> CoursesIds { get; set; }
     }
 }

@@ -59,6 +59,22 @@ namespace CourseLibrary.API.Services
             var authorCourse = _mapper.Map<Course>(authorCourseFromDB);
             return authorCourse;
         }
+        public async Task<Course> GetCourse(Guid courseId)
+        {
+            using var session = _documentStore.OpenAsyncSession();
+
+            //var authorCourse = await session
+            //    .Query<Course>()
+            //    .OfType<Course>()
+            //    .Where(x => x.AuthorId == authorId)
+            //    .Where(x => x.Id == courseId)
+            //    .FirstOrDefaultAsync(); //Esto es innecesario cuando tienes específicamente el id de lo que estás buscando
+            // No necesitas hacer preguntas porque ya conoces la respuesta.
+
+            var authorCourseFromDB = await session.LoadAsync<CourseDocument>(courseId.ToString());
+            var authorCourse = _mapper.Map<Course>(authorCourseFromDB);
+            return authorCourse;
+        }
 
         public async Task<Course> AddCourse(Guid authorId, Course course)
         {
