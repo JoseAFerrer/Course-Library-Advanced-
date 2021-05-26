@@ -31,14 +31,14 @@ namespace CourseLibrary.API.Profiles
                 .ForMember(destinationMember => destinationMember.Id,
                 opts => opts.MapFrom(source => source.Id.ToString()))
                 .ForMember(destinationMember => destinationMember.Courses,
-                opts => opts.MapFrom(source => source.Courses)); //¿Habría que invocar el otro mapping, el de cursos? Dudas, grandes dudas.
+                opts => opts.MapFrom(source => source.Courses)); 
             //Al meter solo los ids es más fácil.
 
             CreateMap<Persistence.PersistenceModels.AuthorDocument, Entities.Author>()
                 .ForMember(destinationMember => destinationMember.Id,
                 options => options.MapFrom(source => Guid.Parse(source.Id)))
                 .ForMember(destinationMember => destinationMember.Courses,
-                options => options.MapFrom(source => source.Courses)); //¿El Parse está bien puesto o sobra?;
+                options => options.MapFrom(source => source.Courses));
         }
     }
 }

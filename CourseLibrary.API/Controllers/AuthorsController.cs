@@ -131,7 +131,7 @@ namespace CourseLibrary.API.Controllers
                 return BadRequest();
             }
 
-            var authorFromRepo = _courseLibraryRepository.GetAuthor(authorId);
+            var authorFromRepo = _courseLibraryRepository.GetAuthor(authorId).Result;
 
             if (authorFromRepo == null)
             {
