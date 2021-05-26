@@ -14,6 +14,6 @@ namespace CourseLibrary.API.Persistence.PersistenceModels
         public DateTimeOffset? DateOfDeath { get; set; }
         public string MainCategory { get; set; }
         public ICollection<CourseDocument> Courses { get; set; }
-            = new List<CourseDocument>();
+            = new List<CourseDocument>(); //Aquí lo interesante sería tener los ids de los cursos.
     }
 }

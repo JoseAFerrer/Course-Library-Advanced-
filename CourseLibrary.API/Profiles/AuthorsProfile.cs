@@ -32,6 +32,7 @@ namespace CourseLibrary.API.Profiles
                 opts => opts.MapFrom(source => source.Id.ToString()))
                 .ForMember(destinationMember => destinationMember.Courses,
                 opts => opts.MapFrom(source => source.Courses)); //¿Habría que invocar el otro mapping, el de cursos? Dudas, grandes dudas.
+            //Al meter solo los ids es más fácil.
 
             CreateMap<Persistence.PersistenceModels.AuthorDocument, Entities.Author>()
                 .ForMember(destinationMember => destinationMember.Id,

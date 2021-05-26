@@ -81,9 +81,11 @@ namespace CourseLibrary.API.Services
 
             using var session = _documentStore.OpenAsyncSession();
 
-            await session.StoreAsync(courseToDB); //Directamente guardamos el dato nuevo.
+            await session.StoreAsync(courseToDB); //Directamente guardamos el dato nuevo. El peligro de esto es que
+                                                  //se sobreescribe el objeto entero, se haya pasado toda la información o no.
 
-            await session.SaveChangesAsync();
+            // Carga un curso y se actualiza con un foreach.
+            await session.SaveChangesAsync(); //La base de datos está escuchando para ver qué cambios le haces al objeto que has cargado.
         }
 
         public async void DeleteCourse(Course course)
@@ -112,8 +114,10 @@ namespace CourseLibrary.API.Services
 
             return authors;
         }
+
         
         //Not implemented
+        //Todo: Do it!
         public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
         {
             throw new NotImplementedException();
@@ -179,7 +183,7 @@ namespace CourseLibrary.API.Services
             await session.SaveChangesAsync();
         }
 
-        public async void UpdateAuthor(Author author)
+        public async void UpdateAuthor(Author author) //Imita los cambios del UpdateCourse
         {
             var authorToDB = _mapper.Map<CourseDocument>(author);
 

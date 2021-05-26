@@ -10,7 +10,7 @@ namespace CourseLibrary.API.Persistence.PersistenceModels
         public string Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public AuthorDocument Author { get; set; }
+        public AuthorDocument Author { get; set; } //Aquí sería el id del autor.
         public string AuthorId { get; set; }
     }
 }
