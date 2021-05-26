@@ -18,7 +18,7 @@ namespace CourseLibrary.API.Helpers
             }
             return ids;
         }
-        public static IEnumerable<Entities.Course> ConvertFromStringIdsToMostlyEmptyCourses(this Persistence.PersistenceModels.AuthorDocument author)
+        public static List<Entities.Course> ConvertFromStringIdsToMostlyEmptyCourses(this Persistence.PersistenceModels.AuthorDocument author)
         {
             var courses = new List<Entities.Course>();
             foreach (var id in author.CoursesIds)

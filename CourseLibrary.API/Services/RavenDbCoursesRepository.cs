@@ -47,14 +47,6 @@ namespace CourseLibrary.API.Services
         {
             using var session = _documentStore.OpenAsyncSession();
 
-            //var authorCourse = await session
-            //    .Query<Course>()
-            //    .OfType<Course>()
-            //    .Where(x => x.AuthorId == authorId)
-            //    .Where(x => x.Id == courseId)
-            //    .FirstOrDefaultAsync(); //Esto es innecesario cuando tienes específicamente el id de lo que estás buscando
-            // No necesitas hacer preguntas porque ya conoces la respuesta.
-
             var authorCourseFromDB = await session.LoadAsync<CourseDocument>(courseId.ToString());
             var authorCourse = _mapper.Map<Course>(authorCourseFromDB);
             return authorCourse;
@@ -62,14 +54,6 @@ namespace CourseLibrary.API.Services
         public async Task<Course> GetCourse(Guid courseId)
         {
             using var session = _documentStore.OpenAsyncSession();
-
-            //var authorCourse = await session
-            //    .Query<Course>()
-            //    .OfType<Course>()
-            //    .Where(x => x.AuthorId == authorId)
-            //    .Where(x => x.Id == courseId)
-            //    .FirstOrDefaultAsync(); //Esto es innecesario cuando tienes específicamente el id de lo que estás buscando
-            // No necesitas hacer preguntas porque ya conoces la respuesta.
 
             var authorCourseFromDB = await session.LoadAsync<CourseDocument>(courseId.ToString());
             var authorCourse = _mapper.Map<Course>(authorCourseFromDB);
@@ -91,7 +75,7 @@ namespace CourseLibrary.API.Services
             return course;
         }
 
-        public async void UpdateCourse(Course course)
+        public async void UpdateCourse(Course course) //Todo: hacerlo como me ha dicho Joao.
         {
             var courseToDB = _mapper.Map<CourseDocument>(course);
 
@@ -119,21 +103,28 @@ namespace CourseLibrary.API.Services
         {
             using var session = _documentStore.OpenAsyncSession();
 
-            var authorsFromDb = await session.Query<AuthorDocument>().OfType<AuthorDocument>().ToListAsync();
+            var authorsFromDb = await session
+                                        .Query<AuthorDocument>()
+                                        .OfType<AuthorDocument>()
+                                        .ToListAsync();
 
-            var authors = new List<Author>();
+            var authors = new List<Author>(); //Todo: Joao: ¿es demasiado trabajo para este método?
+                                              //¿Debería extraer todo este proceso a un nuevo método
+                                              //o este es el lugar adecuado para hacerlo?
 
-            foreach (AuthorDocument authorDB in authorsFromDb)
+            foreach (AuthorDocument authorDB in authorsFromDb) //Iterate through all authors.
             {
-                authors.Add(_mapper.Map<Author>(authorDB));
+                Author convertedAuthor = await ComplexMapFromAuthorDBToAuthor(authorDB);
+
+                authors.Add(convertedAuthor);
             }
+
 
             return authors;
         }
 
-        
         //Not implemented
-        //Todo: Do it!
+        //Todo: Do it, using the method before.
         public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
         {
             throw new NotImplementedException();
@@ -147,7 +138,7 @@ namespace CourseLibrary.API.Services
 
             var authorFromDB = await session.LoadAsync<AuthorDocument>(id);
 
-            var author = _mapper.Map<Author>(authorFromDB);
+            var author = await ComplexMapFromAuthorDBToAuthor(authorFromDB);
 
             return author;
         }
@@ -168,12 +159,11 @@ namespace CourseLibrary.API.Services
                 .ToListAsync();
 
             var authors = new List<Author>();
-
             foreach (AuthorDocument authorDB in authorsFromDb)
-            {
-                authors.Add(_mapper.Map<Author>(authorDB));
+            {//Todo: Joao: ¿se puede hacer un await dentro de otro método? Wow.
+                //var workingAuthor = await ComplexMapFromAuthorDBToAuthor(authorDB);
+                authors.Add(await ComplexMapFromAuthorDBToAuthor(authorDB));
             }
-
             return authors;
         }
 
@@ -181,7 +171,7 @@ namespace CourseLibrary.API.Services
         {
             author.Id = Guid.NewGuid();
 
-            var authorToDB = _mapper.Map<CourseDocument>(author);
+            var authorToDB = _mapper.Map<AuthorDocument>(author);
 
             using var session = _documentStore.OpenAsyncSession();
             await session.StoreAsync(authorToDB);
@@ -206,6 +196,20 @@ namespace CourseLibrary.API.Services
             using var session = _documentStore.OpenAsyncSession();
             await session.StoreAsync(authorToDB);
             await session.SaveChangesAsync();
+        }
+
+        private async Task<Author> ComplexMapFromAuthorDBToAuthor(AuthorDocument authorFromDB)
+        {
+            var convertedAuthor = _mapper.Map<Author>(authorFromDB); //For each author, recover the mapping.
+            var workingAuthor = convertedAuthor;
+            convertedAuthor.Courses.Clear(); //Erase the empty courses to refill the list with the full courses.
+            foreach (var emptyCourse in workingAuthor.Courses)
+            {
+                var fullCourse = await GetCourse(emptyCourse.Id);
+                convertedAuthor.Courses.Add(fullCourse);
+            }
+
+            return convertedAuthor;
         }
 
         public bool AuthorExists(Guid authorId)

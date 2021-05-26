@@ -31,7 +31,7 @@ namespace CourseLibrary.API.Profiles
                 .ForMember(destinationMember => destinationMember.Id,
                 opts => opts.MapFrom(source => source.Id.ToString())) //Este mapea de Guid a string el Id del autor.
                 .ForMember(destinationMember => destinationMember.CoursesIds,
-                opts => opts.MapFrom(source => source.GetCoursesIdsAsStrings() ));  //Todo: hablar con Joao sobre esto.
+                opts => opts.MapFrom(source => source.GetCoursesIdsAsStrings() ));  //Todo: Joao: hablar de esto.
                                                                                     //He alterado la entidad a conveniencia, parece un poco sucio.
                                                                                     //Al meter solo los ids debería ser más fácil.
                                                                                     //AL FINAL he decidido crear un helper que me hiciera el trabajo sucio.
