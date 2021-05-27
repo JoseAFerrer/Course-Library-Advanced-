@@ -15,7 +15,7 @@ namespace CourseLibrary.API.Services
         void UpdateCourse(Course course);
         void DeleteCourse(Course course);
         Task<IEnumerable<Author>> GetAuthors();
-        PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters); //Filtering by categories! And paginating
+        Task<PagedList<Author>> GetAuthors(AuthorsResourceParameters authorsResourceParameters); //Filtering by categories! And paginating
         Task<Author> GetAuthor(Guid authorId);
         Task<IEnumerable<Author>> GetAuthors(IEnumerable<Guid> authorIds);
         void AddAuthor(Author author);

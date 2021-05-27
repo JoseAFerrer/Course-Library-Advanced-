@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CourseLibrary.API.Entities;
 using CourseLibrary.API.Helpers;
+using CourseLibrary.API.Models;
 using CourseLibrary.API.Persistence.PersistenceModels;
 using CourseLibrary.API.ResourceParameters;
 using Raven.Client.Documents;
@@ -75,16 +76,27 @@ namespace CourseLibrary.API.Services
             return course;
         }
 
-        public async void UpdateCourse(Course course) //Todo: hacerlo como me ha dicho Joao.
+        public async void UpdateCourse(Course course) //El peligro de hacer Upsert es que se sobreescribe el objeto entero,
+                                                      //se haya pasado toda la información o no.
+                                                      //Por eso lo hacemos de la siguiente manera:
         {
             var courseToDB = _mapper.Map<CourseDocument>(course);
 
             using var session = _documentStore.OpenAsyncSession();
 
-            await session.StoreAsync(courseToDB); //Directamente guardamos el dato nuevo. El peligro de esto es que
-                                                  //se sobreescribe el objeto entero, se haya pasado toda la información o no.
+            var courseFromDB = await session.LoadAsync<CourseDocument>(courseToDB.Id); 
 
-            // Carga un curso y se actualiza con un foreach.
+            #region Save each property if it is not empty.
+            if (courseToDB.Title != null)
+            {
+                courseFromDB.Title = courseToDB.Title;
+            }
+            if (courseToDB.Description != null)
+            {
+                courseFromDB.Description = courseToDB.Description;
+            }
+            #endregion
+
             await session.SaveChangesAsync(); //La base de datos está escuchando para ver qué cambios le haces al objeto que has cargado.
         }
 
@@ -125,9 +137,45 @@ namespace CourseLibrary.API.Services
 
         //Not implemented
         //Todo: Do it, using the method before.
-        public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
+        public async Task<PagedList<Author>> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
         {
-            throw new NotImplementedException();
+            if (authorsResourceParameters == null)
+            {
+                throw new ArgumentNullException(nameof(authorsResourceParameters));
+            }
+
+            using var session = _documentStore.OpenAsyncSession();
+
+            var collection = await GetAuthors() as IQueryable<Author>;
+
+            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.MainCategory))
+            {
+                var mainCategory = authorsResourceParameters.MainCategory.Trim();
+                collection = collection.Where(a => a.MainCategory == mainCategory);
+            }
+
+            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.SearchQuery))
+            {
+                var searchQuery = authorsResourceParameters.SearchQuery.Trim();
+                collection = collection.Where(a => a.MainCategory.Contains(searchQuery)
+                       || a.FirstName.Contains(searchQuery)
+                       || a.LastName.Contains(searchQuery));
+            }
+
+            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.OrderBy))
+            {
+                //Get property mapping dictionary
+                var authorPropertyMappingDictionary =
+                    _propertyMappingService.GetPropertyMapping<AuthorDto, Author>();
+
+
+                collection = collection.ApplySort(authorsResourceParameters.OrderBy,
+                   authorPropertyMappingDictionary);
+            }
+
+            return PagedList<Author>.Create(collection,
+                authorsResourceParameters.PageNumber,
+                authorsResourceParameters.PageSize); //We are using deferred execution inside the method: the query doesn't execute until we get here
         }
 
         public async Task<Author> GetAuthor(Guid authorId)
@@ -182,19 +230,44 @@ namespace CourseLibrary.API.Services
         {
             author.Id = Guid.NewGuid();
 
-            var authorToDB = _mapper.Map<CourseDocument>(author);
+            var authorToDB = _mapper.Map<AuthorDocument>(author);
 
             using var session = _documentStore.OpenAsyncSession();
             session.Delete(authorToDB);
             await session.SaveChangesAsync();
         }
 
-        public async void UpdateAuthor(Author author) //Imita los cambios del UpdateCourse
+        //Todo: checkear todos los usos de CourseDocument por si he puesto eso en alguno de los autores (se rompería todo).
+        public async void UpdateAuthor(Author author)
         {
-            var authorToDB = _mapper.Map<CourseDocument>(author);
+            var authorToDB = _mapper.Map<AuthorDocument>(author);
 
             using var session = _documentStore.OpenAsyncSession();
-            await session.StoreAsync(authorToDB);
+            var authorFromDB = await session.LoadAsync<AuthorDocument>(authorToDB.Id);
+
+            #region Saving the changes to then update (not upsert) the author.
+            if (authorToDB.FirstName != null)
+            {
+                authorFromDB.FirstName = authorToDB.FirstName;
+            }
+            if (authorToDB.LastName != null)
+            {
+                authorFromDB.LastName = authorToDB.LastName;
+            }
+            if (authorToDB.DateOfBirth != null)
+            {
+                authorFromDB.DateOfBirth = authorToDB.DateOfBirth;
+            }
+            if (authorToDB.MainCategory != null)
+            {
+                authorFromDB.MainCategory = authorToDB.MainCategory;
+            }
+            if (authorToDB.DateOfDeath != null)
+            {
+                authorFromDB.DateOfDeath = authorToDB.DateOfDeath;
+            }
+            #endregion
+
             await session.SaveChangesAsync();
         }
 

@@ -132,7 +132,7 @@ namespace CourseLibrary.API.Services
         {
             return _context.Authors.ToList<Author>();
         }
-        public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters) //Filtering by categories! Searching by strings!
+        public async Task<PagedList<Author>> GetAuthors(AuthorsResourceParameters authorsResourceParameters) //Filtering by categories! Searching by strings!
         { //Paginating!
             if (authorsResourceParameters ==null)
             {
