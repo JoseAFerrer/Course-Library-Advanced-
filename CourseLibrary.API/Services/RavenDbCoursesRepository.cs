@@ -158,9 +158,8 @@ namespace CourseLibrary.API.Services
             return authors;
         } 
 
-        //Todo: Do it, using the method before.
         public async Task<PagedList<Author>> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
-        {
+        { //Todo: da una excepción cuando pido field=id. ¿Por qué?
             if (authorsResourceParameters == null)
             {
                 throw new ArgumentNullException(nameof(authorsResourceParameters));
@@ -245,10 +244,24 @@ namespace CourseLibrary.API.Services
         {
             author.Id = Guid.NewGuid();
 
+            var coursesToDB = new List<CourseDocument>();
+            foreach (var course in author.Courses)
+            {
+                course.Id = Guid.NewGuid();
+                course.AuthorId = author.Id;
+                coursesToDB.Add(_mapper.Map<CourseDocument>(course));
+            }
+
             var authorToDB = _mapper.Map<AuthorDocument>(author);
 
             using var session = _documentStore.OpenAsyncSession();
             await session.StoreAsync(authorToDB);
+
+            foreach (var course in coursesToDB) //En caso de verme obligado a hacerlo así, que parece que sí, me tengo que comer el límite de 32 operaciones...
+            {
+                await session.StoreAsync(course);
+            }
+            // await session.StoreAsync(coursesToDB); //Todo: Joao: ¿al guardar una lista se guarda la lista o los elemntos? Esto me da una excepción, for some reason.
             await session.SaveChangesAsync();
         }
 
@@ -326,7 +339,7 @@ namespace CourseLibrary.API.Services
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            return true; //This might be bad practice. Another option would be to completely wipe it. But I'm still running tests.
         }
     }
 }
