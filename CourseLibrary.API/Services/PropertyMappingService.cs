@@ -1,5 +1,6 @@
 ﻿using CourseLibrary.API.Entities;
 using CourseLibrary.API.Models;
+using CourseLibrary.API.Persistence.PersistenceModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

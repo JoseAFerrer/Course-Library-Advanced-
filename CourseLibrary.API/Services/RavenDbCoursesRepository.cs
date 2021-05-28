@@ -150,7 +150,7 @@ namespace CourseLibrary.API.Services
 
             foreach (AuthorDocument authorDB in authorsFromDb) //Iterate through all authors.
             {
-                Author convertedAuthor = await ComplexMapFromAuthorDBToAuthor(authorDB, session); //Note this charges all courses for every author, but the author of those courses is empty.
+                Author convertedAuthor = await ComplexMapFromAuthorDBToAuthor(authorDB, session); //Note this loads all courses for every author, but the author of those courses is empty.
 
                 authors.Add(convertedAuthor);
             }
@@ -169,9 +169,14 @@ namespace CourseLibrary.API.Services
 
             var collection = await GetAuthors(session) as IQueryable<Author>;
 
-            #region Filtering by MainCategory and SearchQuery
-            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.MainCategory))
+            if (collection == null)
             {
+                throw new ApplicationException("GILIPOLLAS");
+            }
+
+            #region Filtering by MainCategory and SearchQuery 
+            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.MainCategory))
+            {//Todo: because of the way this method is built, all authors are loaded and only after that are they filtered and sorted. Problematic. Not efficient.
                 var mainCategory = authorsResourceParameters.MainCategory.Trim();
                 collection = collection.Where(a => a.MainCategory == mainCategory);
             }
@@ -185,6 +190,8 @@ namespace CourseLibrary.API.Services
             }
             #endregion
 
+            Console.WriteLine("Filtering is not the problem");
+
             if (!string.IsNullOrWhiteSpace(authorsResourceParameters.OrderBy))
             {
                 //Get property mapping dictionary
@@ -194,6 +201,9 @@ namespace CourseLibrary.API.Services
                 collection = collection.ApplySort(authorsResourceParameters.OrderBy,
                    authorPropertyMappingDictionary);
             }
+
+            Console.WriteLine("Sorting is not the problem");
+
 
             return PagedList<Author>.Create(collection,
                 authorsResourceParameters.PageNumber,
@@ -315,9 +325,14 @@ namespace CourseLibrary.API.Services
         {
             var convertedAuthor = _mapper.Map<Author>(authorFromDB); //For each author, recover the mapping.
                                                                      //
+            // var coursesFromDB = await session.LoadAsync<CourseDocument>(authorFromDB.CoursesIds.ToArray()); 
+            //Todo: Joao: ¡aquí se carga un diccionario porque también van los ids! Confirmar.
+            
             var coursesFromDB = await session.LoadAsync<CourseDocument>(authorFromDB.CoursesIds.ToArray());
 
-            var convertedCourses = _mapper.Map<List<Course>>(coursesFromDB);
+            var x = coursesFromDB.Values.ToList<CourseDocument>();
+
+            var convertedCourses = _mapper.Map<List<Course>>(x); //Todo: creo que la excepción viene de aquí. Antes lo hacía; ahora me señala otro sitio, pero puede que el origen siga siendo este.
 
             convertedAuthor.Courses = convertedCourses;
 
