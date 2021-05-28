@@ -167,12 +167,14 @@ namespace CourseLibrary.API.Services
 
             using var session = _documentStore.OpenAsyncSession();
 
-            var collection = await GetAuthors(session) as IQueryable<Author>;
+            var precollection = await GetAuthors(session);// as IQueryable<Author>;
 
-            if (collection == null)
-            {
-                throw new ApplicationException("GILIPOLLAS");
-            }
+            var collection= precollection.AsQueryable();
+
+            //if (precollection == null)
+            //{
+            //    throw new ApplicationException("GILIPOLLAS");
+            //}
 
             #region Filtering by MainCategory and SearchQuery 
             if (!string.IsNullOrWhiteSpace(authorsResourceParameters.MainCategory))
@@ -190,7 +192,6 @@ namespace CourseLibrary.API.Services
             }
             #endregion
 
-            Console.WriteLine("Filtering is not the problem");
 
             if (!string.IsNullOrWhiteSpace(authorsResourceParameters.OrderBy))
             {
@@ -202,7 +203,6 @@ namespace CourseLibrary.API.Services
                    authorPropertyMappingDictionary);
             }
 
-            Console.WriteLine("Sorting is not the problem");
 
 
             return PagedList<Author>.Create(collection,
