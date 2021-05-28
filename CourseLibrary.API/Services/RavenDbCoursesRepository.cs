@@ -171,11 +171,6 @@ namespace CourseLibrary.API.Services
 
             var collection= precollection.AsQueryable();
 
-            //if (precollection == null)
-            //{
-            //    throw new ApplicationException("GILIPOLLAS");
-            //}
-
             #region Filtering by MainCategory and SearchQuery 
             if (!string.IsNullOrWhiteSpace(authorsResourceParameters.MainCategory))
             {//Todo: because of the way this method is built, all authors are loaded and only after that are they filtered and sorted. Problematic. Not efficient.
