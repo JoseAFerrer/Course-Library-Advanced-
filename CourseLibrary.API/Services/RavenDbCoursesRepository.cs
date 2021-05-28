@@ -16,12 +16,15 @@ namespace CourseLibrary.API.Services
     {
         private readonly IDocumentStore _documentStore;
         private readonly IMapper _mapper;
+        private readonly IPropertyMappingService _propertyMappingService;
 
         public RavenDbCoursesRepository(IDocumentStore documentStore,
-            IMapper mapper)
+            IMapper mapper,
+            IPropertyMappingService propertyMappingService)
         {
             _documentStore = documentStore;
             _mapper= mapper;
+            _propertyMappingService = propertyMappingService ?? throw new ArgumentNullException(nameof(propertyMappingService));
         }
 
         public async Task<IEnumerable<Course>> GetCourses(Guid authorId)
@@ -48,22 +51,40 @@ namespace CourseLibrary.API.Services
         {
             using var session = _documentStore.OpenAsyncSession();
 
-            var authorCourseFromDB = await session.LoadAsync<CourseDocument>(courseId.ToString());
-            var authorCourse = _mapper.Map<Course>(authorCourseFromDB);
+            var authorCourseFromDB = await session
+                                            .LoadAsync<CourseDocument>(courseId.ToString(),
+                                            builder => builder
+                                            .IncludeDocuments(authorId.ToString())); //Precargamos el autor a través de su id.
+
+            var authorCourse = _mapper.Map<Course>(authorCourseFromDB); //Este mapeo deja al autor vacío. Ahora lo rellenaremos.
+
+            var authorFromDB = await session.LoadAsync<AuthorDocument>(authorId.ToString());
+
+            authorCourse.Author = _mapper.Map<Author>(authorFromDB); //Note that this particular author has an empty list of courses BECAUSE YOU DON'T NEED TO GET TO THE SECOND LEVEL.
+
             return authorCourse;
         }
         public async Task<Course> GetCourse(Guid courseId)
         {
             using var session = _documentStore.OpenAsyncSession();
 
-            var authorCourseFromDB = await session.LoadAsync<CourseDocument>(courseId.ToString());
+            var authorCourseFromDB = await session
+                .LoadAsync<CourseDocument>(courseId.ToString(),
+                builder => builder
+                .IncludeDocuments(x =>x.AuthorId)); //Esto precarga el autor desde su id.
+
             var authorCourse = _mapper.Map<Course>(authorCourseFromDB);
+
+            var authorFromDB = await session.LoadAsync<AuthorDocument>(authorCourse.AuthorId.ToString());
+
+            authorCourse.Author = _mapper.Map<Author>(authorFromDB);
+
             return authorCourse;
         }
 
         public async Task<Course> AddCourse(Guid authorId, Course course)
         {
-            course.Id = Guid.NewGuid(); //Pasar a .ToString();
+            course.Id = Guid.NewGuid(); //Este id se pasará luego a string dentro del mapeo.
             course.AuthorId = authorId;
 
             var courseToDB = _mapper.Map<CourseDocument>(course);
@@ -76,8 +97,7 @@ namespace CourseLibrary.API.Services
             return course;
         }
 
-        public async void UpdateCourse(Course course) //El peligro de hacer Upsert es que se sobreescribe el objeto entero,
-                                                      //se haya pasado toda la información o no.
+        public async void UpdateCourse(Course course) //El peligro de hacer Upsert es que se sobreescribe el objeto entero,se haya pasado toda la información o no.
                                                       //Por eso lo hacemos de la siguiente manera:
         {
             var courseToDB = _mapper.Map<CourseDocument>(course);
@@ -86,7 +106,7 @@ namespace CourseLibrary.API.Services
 
             var courseFromDB = await session.LoadAsync<CourseDocument>(courseToDB.Id); 
 
-            #region Save each property if it is not empty.
+            #region Update each non-empty property.
             if (courseToDB.Title != null)
             {
                 courseFromDB.Title = courseToDB.Title;
@@ -94,6 +114,10 @@ namespace CourseLibrary.API.Services
             if (courseToDB.Description != null)
             {
                 courseFromDB.Description = courseToDB.Description;
+            }
+            if (courseToDB.AuthorId != null)
+            {
+                courseFromDB.AuthorId = courseToDB.AuthorId;
             }
             #endregion
 
@@ -106,36 +130,34 @@ namespace CourseLibrary.API.Services
 
             using var session = _documentStore.OpenAsyncSession();
 
-            session.Delete<CourseDocument>(courseToDB); //Cannot await void?
+            session.Delete<CourseDocument>(courseToDB); 
 
             await session.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Author>> GetAuthors()
+        //Este método nunca se llama desde el controlador: lo que ocurre es que se le llama desde el paginador
+        // para que haga el trabajo sucio de base de datos y todo eso.
+        public async Task<IEnumerable<Author>> GetAuthors(Raven.Client.Documents.Session.IAsyncDocumentSession session)
         {
-            using var session = _documentStore.OpenAsyncSession();
-
             var authorsFromDb = await session
                                         .Query<AuthorDocument>()
                                         .OfType<AuthorDocument>()
+                                        .Include(x => x.CoursesIds) //Include: cláusula de la query. Precárgame este Id y luego dámelo
+                                                                    //(así te ahorras un viaje a base de datos).
                                         .ToListAsync();
 
-            var authors = new List<Author>(); //Todo: Joao: ¿es demasiado trabajo para este método?
-                                              //¿Debería extraer todo este proceso a un nuevo método
-                                              //o este es el lugar adecuado para hacerlo?
+            var authors = new List<Author>();
 
             foreach (AuthorDocument authorDB in authorsFromDb) //Iterate through all authors.
             {
-                Author convertedAuthor = await ComplexMapFromAuthorDBToAuthor(authorDB);
+                Author convertedAuthor = await ComplexMapFromAuthorDBToAuthor(authorDB, session); //Note this charges all courses for every author, but the author of those courses is empty.
 
                 authors.Add(convertedAuthor);
             }
 
-
             return authors;
-        }
+        } 
 
-        //Not implemented
         //Todo: Do it, using the method before.
         public async Task<PagedList<Author>> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
         {
@@ -146,8 +168,9 @@ namespace CourseLibrary.API.Services
 
             using var session = _documentStore.OpenAsyncSession();
 
-            var collection = await GetAuthors() as IQueryable<Author>;
+            var collection = await GetAuthors(session) as IQueryable<Author>;
 
+            #region Filtering by MainCategory and SearchQuery
             if (!string.IsNullOrWhiteSpace(authorsResourceParameters.MainCategory))
             {
                 var mainCategory = authorsResourceParameters.MainCategory.Trim();
@@ -161,13 +184,13 @@ namespace CourseLibrary.API.Services
                        || a.FirstName.Contains(searchQuery)
                        || a.LastName.Contains(searchQuery));
             }
+            #endregion
 
             if (!string.IsNullOrWhiteSpace(authorsResourceParameters.OrderBy))
             {
                 //Get property mapping dictionary
                 var authorPropertyMappingDictionary =
                     _propertyMappingService.GetPropertyMapping<AuthorDto, Author>();
-
 
                 collection = collection.ApplySort(authorsResourceParameters.OrderBy,
                    authorPropertyMappingDictionary);
@@ -184,9 +207,12 @@ namespace CourseLibrary.API.Services
 
             using var session = _documentStore.OpenAsyncSession();
 
-            var authorFromDB = await session.LoadAsync<AuthorDocument>(id);
+            var authorFromDB = await session
+                                .LoadAsync<AuthorDocument>(id, builder => builder
+                                .IncludeDocuments<AuthorDocument>(x =>
+                                    x.CoursesIds));
 
-            var author = await ComplexMapFromAuthorDBToAuthor(authorFromDB);
+            var author = await ComplexMapFromAuthorDBToAuthor(authorFromDB, session);
 
             return author;
         }
@@ -203,14 +229,14 @@ namespace CourseLibrary.API.Services
             var authorsFromDb = await session
                 .Query<AuthorDocument>()
                 .Where(x => ids.Contains(x.Id))
+                .Include(x => x.CoursesIds)
                 .OfType<AuthorDocument>()
                 .ToListAsync();
 
             var authors = new List<Author>();
             foreach (AuthorDocument authorDB in authorsFromDb)
-            {//Todo: Joao: ¿se puede hacer un await dentro de otro método? Wow.
-                //var workingAuthor = await ComplexMapFromAuthorDBToAuthor(authorDB);
-                authors.Add(await ComplexMapFromAuthorDBToAuthor(authorDB));
+            {
+                authors.Add(await ComplexMapFromAuthorDBToAuthor(authorDB, session));
             }
             return authors;
         }
@@ -237,7 +263,6 @@ namespace CourseLibrary.API.Services
             await session.SaveChangesAsync();
         }
 
-        //Todo: checkear todos los usos de CourseDocument por si he puesto eso en alguno de los autores (se rompería todo).
         public async void UpdateAuthor(Author author)
         {
             var authorToDB = _mapper.Map<AuthorDocument>(author);
@@ -271,16 +296,17 @@ namespace CourseLibrary.API.Services
             await session.SaveChangesAsync();
         }
 
-        private async Task<Author> ComplexMapFromAuthorDBToAuthor(AuthorDocument authorFromDB)
+        private async Task<Author> ComplexMapFromAuthorDBToAuthor(AuthorDocument authorFromDB,
+            Raven.Client.Documents.Session.IAsyncDocumentSession session)              //Estamos usando, al pasar la sesión abierta, los datos que hemos precargado en memoria.
+                                                                                       //El límite de operaciones por sesión a base de datos ya no nos afecta (!)
         {
             var convertedAuthor = _mapper.Map<Author>(authorFromDB); //For each author, recover the mapping.
-            var workingAuthor = convertedAuthor;
-            convertedAuthor.Courses.Clear(); //Erase the empty courses to refill the list with the full courses.
-            foreach (var emptyCourse in workingAuthor.Courses)
-            {
-                var fullCourse = await GetCourse(emptyCourse.Id);
-                convertedAuthor.Courses.Add(fullCourse);
-            }
+                                                                     //
+            var coursesFromDB = await session.LoadAsync<CourseDocument>(authorFromDB.CoursesIds.ToArray());
+
+            var convertedCourses = _mapper.Map<List<Course>>(coursesFromDB);
+
+            convertedAuthor.Courses = convertedCourses;
 
             return convertedAuthor;
         }

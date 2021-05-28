@@ -31,20 +31,15 @@ namespace CourseLibrary.API.Profiles
                 .ForMember(destinationMember => destinationMember.Id,
                 opts => opts.MapFrom(source => source.Id.ToString())) //Este mapea de Guid a string el Id del autor.
                 .ForMember(destinationMember => destinationMember.CoursesIds,
-                opts => opts.MapFrom(source => source.GetCoursesIdsAsStrings() ));  //Todo: Joao: hablar de esto.
-                                                                                    //He alterado la entidad a conveniencia, parece un poco sucio.
-                                                                                    //Al meter solo los ids debería ser más fácil.
-                                                                                    //AL FINAL he decidido crear un helper que me hiciera el trabajo sucio.
+                opts => opts.MapFrom(source => source.GetCoursesIdsAsStrings() )); //AL FINAL he decidido crear un helper que me hiciera el trabajo sucio.
 
             CreateMap<Persistence.PersistenceModels.AuthorDocument, Entities.Author>()
                 .ForMember(destinationMember => destinationMember.Id,
                 options => options.MapFrom(source => Guid.Parse(source.Id)))
                 .ForMember(destinationMember => destinationMember.Courses,
-                options => options.MapFrom(source => source.ConvertFromStringIdsToMostlyEmptyCourses()))
-                                                                                    //Un helper genera cursos vacíos y les pone el Id
-                                                                                    //para cargarlos más tarde.
-                                                                                    //Pero así ya están creados.
-                ;
+                options => options.MapFrom(_ => new List<Entities.Course>() ));  //El mapeo tiene una opción para ignorar campos,
+                                                                                 //Option.Ignore o similar,
+                                                                                 //que es casi equivalente a lo que hecho (lo deja en null).
         }
     }
 }

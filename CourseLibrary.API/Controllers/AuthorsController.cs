@@ -61,7 +61,7 @@ namespace CourseLibrary.API.Controllers
                 return BadRequest();
             }
 
-            var authorsFromRepo = _courseLibraryRepository.GetAuthors(authorsResourceParameters);
+            var authorsFromRepo =  _courseLibraryRepository.GetAuthors(authorsResourceParameters).Result;
 
             #region Pagination details
 

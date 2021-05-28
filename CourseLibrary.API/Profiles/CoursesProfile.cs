@@ -15,19 +15,23 @@ namespace CourseLibrary.API.Profiles
             CreateMap<Models.CourseForUpdateDto, Entities.Course>();
             CreateMap<Entities.Course, Models.CourseForUpdateDto >();
 
-            //And now, let's get to the maps that convert from entities (courses) to persistence models.
+            //And now, let's get to the maps that convert from entities (courses) to persistence models
+            //and the other way around.
 
             CreateMap<Entities.Course, Persistence.PersistenceModels.CourseDocument>()
                 .ForMember(destinationMember => destinationMember.Id,
-                opts => opts.MapFrom(source => source.Id.ToString())) //Intellicode dice que podría poner MapExpression, pero no estoy seguro de ello.
+                opts => opts.MapFrom(source => source.Id.ToString())) 
                 .ForMember(destinationMember => destinationMember.AuthorId,
-                opts => opts.MapFrom(source => source.AuthorId.ToString())); //¿El ToString está bien puesto o sobra?
+                opts => opts.MapFrom(source => source.AuthorId.ToString())); 
             
             CreateMap<Persistence.PersistenceModels.CourseDocument, Entities.Course>()
                 .ForMember(destinationMember => destinationMember.Id,
                 options => options.MapFrom(source => Guid.Parse(source.Id)))
                 .ForMember(destinationMember => destinationMember.AuthorId,
-                options => options.MapFrom(source => Guid.Parse(source.AuthorId))); //¿El Parse está bien puesto o sobra?;
+                options => options.MapFrom(source => Guid.Parse(source.AuthorId))); //Importante e interesante:
+                                                                                    // aquí se guarda el id del autor,
+                                                                                    // si la VISTA requiere que esté el autor ya se encargarán
+                                                                                    // los niveles superiores de hacerlo.
 
 
         }

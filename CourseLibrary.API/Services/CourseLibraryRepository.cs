@@ -3,6 +3,7 @@ using CourseLibrary.API.Entities;
 using CourseLibrary.API.Helpers;
 using CourseLibrary.API.Models;
 using CourseLibrary.API.ResourceParameters;
+using Raven.Client.Documents.Session;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -206,6 +207,11 @@ namespace CourseLibrary.API.Services
             {
                // dispose resources when needed
             }
+        }
+
+        Task<IEnumerable<Author>> ICourseLibraryRepository.GetAuthors(IAsyncDocumentSession session)
+        {
+            throw new NotImplementedException();
         }
     }
 }
