@@ -42,7 +42,7 @@ namespace CourseLibrary.API.Controllers
                 return NotFound();
             }
 
-            var coursesFromAuthorFromRepo = _courseLibraryRepository.GetCourses(authorId);
+            var coursesFromAuthorFromRepo = _courseLibraryRepository.GetCourses(authorId).Result;
             return Ok(_mapper.Map<IEnumerable<CourseDto>>(coursesFromAuthorFromRepo));
         }
 

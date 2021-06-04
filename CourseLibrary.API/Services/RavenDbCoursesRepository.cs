@@ -17,7 +17,7 @@ namespace CourseLibrary.API.Services
     {
         private readonly IDocumentStore _documentStore;
         private readonly IMapper _mapper;
-        private readonly IPropertyMappingService _propertyMappingService;
+        //private readonly IPropertyMappingService _propertyMappingService;
 
         public RavenDbCoursesRepository(IDocumentStore documentStore,
             IMapper mapper,
@@ -25,7 +25,7 @@ namespace CourseLibrary.API.Services
         {
             _documentStore = documentStore;
             _mapper= mapper;
-            _propertyMappingService = propertyMappingService ?? throw new ArgumentNullException(nameof(propertyMappingService));
+            //_propertyMappingService = propertyMappingService ?? throw new ArgumentNullException(nameof(propertyMappingService));
         }
 
         public async Task<IEnumerable<Course>> GetCourses(Guid authorId)
@@ -40,10 +40,7 @@ namespace CourseLibrary.API.Services
 
             var authorCourses = new List<Course>();
 
-            foreach (CourseDocument courseDB in authorCoursesFromDb)
-            {
-                authorCourses.Add(_mapper.Map<Course>(authorCoursesFromDb));
-            }
+            authorCourses = _mapper.Map<List<Course>>(authorCoursesFromDb);
 
             return authorCourses;
         }
@@ -175,7 +172,7 @@ namespace CourseLibrary.API.Services
 
             #region Filtering by MainCategory and SearchQuery 
             if (!string.IsNullOrWhiteSpace(authorsResourceParameters.MainCategory))
-            {//Todo: because of the way this method is built, all authors are loaded and only after that are they filtered and sorted. Problematic. Not efficient.
+            {
                 var mainCategory = authorsResourceParameters.MainCategory.Trim();
                 collection = collection.Where<AuthorDocument>(a => a.MainCategory == mainCategory);
 
@@ -184,14 +181,16 @@ namespace CourseLibrary.API.Services
             if (!string.IsNullOrWhiteSpace(authorsResourceParameters.SearchQuery))
             {
                 var searchQuery = authorsResourceParameters.SearchQuery.Trim();
-                collection = collection.Where(a => a.MainCategory.Contains(searchQuery)
-                       || a.FirstName.Contains(searchQuery)
-                       || a.LastName.Contains(searchQuery));
+                collection = collection.Where(a => searchQuery.In(a.MainCategory)
+                       || searchQuery.In(a.FirstName)
+                       || searchQuery.In(a.LastName));
             }
             #endregion
 
+            var recollection = await collection.ToListAsync();
             var preauthors = new List<Author>();
-            foreach (AuthorDocument authorDB in collection) //Iterate through all authors.
+
+            foreach (AuthorDocument authorDB in recollection) //Iterate through all authors. IF YOU ITERATE, YOU ARE FORCING THE QUERY TO HAPPEN.
             {
                 Author convertedAuthor = await ComplexMapFromAuthorDBToAuthor(authorDB, session); //Note this loads all courses for every author, but the author of those courses is empty.
 
@@ -200,22 +199,25 @@ namespace CourseLibrary.API.Services
 
             var authors = preauthors.AsQueryable<Author>();
 
-            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.OrderBy))
-            {
-                //Get property mapping dictionary
-                var authorPropertyMappingDictionary =
-                    _propertyMappingService.GetPropertyMapping<AuthorDto, Author>(); //Todo: fix something about this,
-                                                                                     //I think the problem is the new format I'm feeding the program.
-
-                authors = authors.ApplySort(authorsResourceParameters.OrderBy,
-                   authorPropertyMappingDictionary);
-            }
-
-
-
             return PagedList<Author>.Create(authors,
                 authorsResourceParameters.PageNumber,
-                authorsResourceParameters.PageSize); //We are using deferred execution inside the method: the query doesn't execute until we get here
+                authorsResourceParameters.PageSize);
+
+            ////////////////////////////////////
+            //if (!string.IsNullOrWhiteSpace(authorsResourceParameters.OrderBy))
+            //{
+            //    //Get property mapping dictionary
+            //    var authorPropertyMappingDictionary =
+            //        _propertyMappingService.GetPropertyMapping<AuthorDto, Author>(); //Todo: fix something about this,
+            //                                                                         //I think the problem is the new format I'm feeding the program.
+
+            //    authors = authors.ApplySort(authorsResourceParameters.OrderBy,
+            //       authorPropertyMappingDictionary);
+            //}
+            //Todo: reentender bien cómo funciona el ApplySort e implementarlo.
+
+
+            
         }
 
         public async Task<Author> GetAuthor(Guid authorId)
@@ -334,13 +336,13 @@ namespace CourseLibrary.API.Services
             var convertedAuthor = _mapper.Map<Author>(authorFromDB); //For each author, recover the mapping.
                                                                      //
             // var coursesFromDB = await session.LoadAsync<CourseDocument>(authorFromDB.CoursesIds.ToArray()); 
-            //Todo: Joao: ¡aquí se carga un diccionario porque también van los ids! Confirmar.
+            //¡Aquí se carga un diccionario porque también van los ids! Confirmar.
             
             var coursesFromDB = await session.LoadAsync<CourseDocument>(authorFromDB.CoursesIds.ToArray());
 
             var x = coursesFromDB.Values.ToList<CourseDocument>();
 
-            var convertedCourses = _mapper.Map<List<Course>>(x); //Todo: creo que la excepción viene de aquí. Antes lo hacía; ahora me señala otro sitio, pero puede que el origen siga siendo este.
+            var convertedCourses = _mapper.Map<List<Course>>(x);
 
             convertedAuthor.Courses = convertedCourses;
 

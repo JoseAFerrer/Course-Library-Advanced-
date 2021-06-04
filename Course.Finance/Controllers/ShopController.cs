@@ -31,7 +31,10 @@ namespace Course.Finance.Controllers
             // var coursesFromDb = _financeRepo.GetCourses();
             using var session = _documentStore.OpenAsyncSession();
 
-            var allCourses = await session.Query<FinanceCourse>().OfType<FinanceCourse>().ToListAsync(); 
+            var allCourses = await session
+                                        .Query<FinanceCourse>()
+                                        .OfType<FinanceCourse>()
+                                        .ToListAsync(); 
             //El OfType es por si antes has utilizado un índice, al especificar la Query, que es lo más normal (porque lo hace todo mucho más eficiente).
 
             return Ok(allCourses);
@@ -44,9 +47,10 @@ namespace Course.Finance.Controllers
 
             using var session = _documentStore.OpenAsyncSession();
 
-            var pastTransactions = await session.Query<Transaction>()
-                .Where(x => x.BuyerId == Id)
-                .OfType<Transaction>().ToListAsync(); 
+            var pastTransactions = await session
+                                            .Query<Transaction>()
+                                            .Where(x => x.BuyerId == Id)
+                                            .OfType<Transaction>().ToListAsync(); 
 
             return Ok(pastTransactions);
         }
