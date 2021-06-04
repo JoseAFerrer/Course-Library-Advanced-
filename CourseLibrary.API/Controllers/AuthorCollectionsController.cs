@@ -57,7 +57,6 @@ namespace CourseLibrary.API.Controllers
             {
                 _courseLibraryRepository.AddAuthor(author);
             }
-            _courseLibraryRepository.Save();
 
             //Now we create the content for the response body
             var authorCollectionToReturn = _mapper.Map<IEnumerable<AuthorDto>>(authorEntities);

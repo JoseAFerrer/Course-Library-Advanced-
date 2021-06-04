@@ -22,7 +22,7 @@ namespace Course.Finance.Controllers
         {
             _financeRepo = financeRepo;
             _documentStore = documentStore;
-        }
+        } //Todo: crear una nueva base de datos exclusiva para Finance.
 
         //////////////////////////////////////////
         [HttpGet(Name = "BuyableCourses")]

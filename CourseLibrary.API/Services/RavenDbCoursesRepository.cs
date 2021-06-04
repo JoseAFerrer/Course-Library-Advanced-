@@ -9,6 +9,7 @@ using CourseLibrary.API.Models;
 using CourseLibrary.API.Persistence.PersistenceModels;
 using CourseLibrary.API.ResourceParameters;
 using Raven.Client.Documents;
+using Raven.Client.Documents.Linq;
 
 namespace CourseLibrary.API.Services
 {
@@ -159,7 +160,7 @@ namespace CourseLibrary.API.Services
         } 
 
         public async Task<PagedList<Author>> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
-        { //Todo: da una excepción cuando pido field=id. ¿Por qué?
+        {
             if (authorsResourceParameters == null)
             {
                 throw new ArgumentNullException(nameof(authorsResourceParameters));
@@ -167,15 +168,17 @@ namespace CourseLibrary.API.Services
 
             using var session = _documentStore.OpenAsyncSession();
 
-            var precollection = await GetAuthors(session);// as IQueryable<Author>;
-
-            var collection= precollection.AsQueryable();
+            var collection = session
+                                        .Query<AuthorDocument>()
+                                        .OfType<AuthorDocument>()
+                                        .Include(x => x.CoursesIds); //Include: cláusula de la query. Precárgame este Id y luego dámelo
 
             #region Filtering by MainCategory and SearchQuery 
             if (!string.IsNullOrWhiteSpace(authorsResourceParameters.MainCategory))
             {//Todo: because of the way this method is built, all authors are loaded and only after that are they filtered and sorted. Problematic. Not efficient.
                 var mainCategory = authorsResourceParameters.MainCategory.Trim();
-                collection = collection.Where(a => a.MainCategory == mainCategory);
+                collection = collection.Where<AuthorDocument>(a => a.MainCategory == mainCategory);
+
             }
 
             if (!string.IsNullOrWhiteSpace(authorsResourceParameters.SearchQuery))
@@ -187,20 +190,30 @@ namespace CourseLibrary.API.Services
             }
             #endregion
 
+            var preauthors = new List<Author>();
+            foreach (AuthorDocument authorDB in collection) //Iterate through all authors.
+            {
+                Author convertedAuthor = await ComplexMapFromAuthorDBToAuthor(authorDB, session); //Note this loads all courses for every author, but the author of those courses is empty.
+
+                preauthors.Add(convertedAuthor);
+            }
+
+            var authors = preauthors.AsQueryable<Author>();
 
             if (!string.IsNullOrWhiteSpace(authorsResourceParameters.OrderBy))
             {
                 //Get property mapping dictionary
                 var authorPropertyMappingDictionary =
-                    _propertyMappingService.GetPropertyMapping<AuthorDto, Author>();
+                    _propertyMappingService.GetPropertyMapping<AuthorDto, Author>(); //Todo: fix something about this,
+                                                                                     //I think the problem is the new format I'm feeding the program.
 
-                collection = collection.ApplySort(authorsResourceParameters.OrderBy,
+                authors = authors.ApplySort(authorsResourceParameters.OrderBy,
                    authorPropertyMappingDictionary);
             }
 
 
 
-            return PagedList<Author>.Create(collection,
+            return PagedList<Author>.Create(authors,
                 authorsResourceParameters.PageNumber,
                 authorsResourceParameters.PageSize); //We are using deferred execution inside the method: the query doesn't execute until we get here
         }
@@ -345,11 +358,6 @@ namespace CourseLibrary.API.Services
                 return true;
             }
             return false;
-        }
-
-        public bool Save()
-        {
-            return true; //This might be bad practice. Another option would be to completely wipe it. But I'm still running tests.
         }
     }
 }

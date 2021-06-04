@@ -14,7 +14,6 @@ namespace CourseLibrary.API.Services
         Task<Course> AddCourse(Guid authorId, Course course);
         void UpdateCourse(Course course);
         void DeleteCourse(Course course);
-        Task<IEnumerable<Author>> GetAuthors(Raven.Client.Documents.Session.IAsyncDocumentSession session);
         Task<PagedList<Author>> GetAuthors(AuthorsResourceParameters authorsResourceParameters); //Filtering by categories! And paginating
         Task<Author> GetAuthor(Guid authorId);
         Task<IEnumerable<Author>> GetAuthors(IEnumerable<Guid> authorIds);
@@ -22,6 +21,5 @@ namespace CourseLibrary.API.Services
         void DeleteAuthor(Author author);
         void UpdateAuthor(Author author);
         bool AuthorExists(Guid authorId);
-        bool Save();
     }
 }

@@ -189,7 +189,6 @@ namespace CourseLibrary.API.Controllers
         {
             var authorEntity = _mapper.Map<Author>(author);
             _courseLibraryRepository.AddAuthor(authorEntity);
-            _courseLibraryRepository.Save();
 
             var authorToReturn = _mapper.Map<AuthorDto>(authorEntity);
 
@@ -214,7 +213,6 @@ namespace CourseLibrary.API.Controllers
         {
             var authorEntity = _mapper.Map<Author>(author);
             _courseLibraryRepository.AddAuthor(authorEntity);
-            _courseLibraryRepository.Save();
 
             var authorToReturn = _mapper.Map<AuthorDto>(authorEntity);
 
@@ -246,8 +244,6 @@ namespace CourseLibrary.API.Controllers
                 return NotFound();
             }
             _courseLibraryRepository.DeleteAuthor(authorFromRepo);
-
-            _courseLibraryRepository.Save();
 
             return NoContent();
         }

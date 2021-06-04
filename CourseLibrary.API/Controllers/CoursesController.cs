@@ -79,7 +79,6 @@ namespace CourseLibrary.API.Controllers
 
             var courseEntity = _mapper.Map<Entities.Course>(course);
             _courseLibraryRepository.AddCourse(authorId, courseEntity);
-            _courseLibraryRepository.Save();
 
             var courseToReturn = _mapper.Map<CourseDto>(courseEntity);
             return CreatedAtRoute("GetCourseForAuthor",
@@ -106,7 +105,6 @@ namespace CourseLibrary.API.Controllers
 
                 _courseLibraryRepository.AddCourse(authorId, courseToAdd);
 
-                _courseLibraryRepository.Save();
 
                 var courseToReturn = _mapper.Map<CourseDto>(courseToAdd);
                 return CreatedAtRoute("GetCourseForAuthor",
@@ -121,7 +119,6 @@ namespace CourseLibrary.API.Controllers
             _mapper.Map(course, courseForAuthorFromRepo);
 
             _courseLibraryRepository.UpdateCourse(courseForAuthorFromRepo);
-            _courseLibraryRepository.Save();
 
             return NoContent();
 
@@ -154,7 +151,6 @@ namespace CourseLibrary.API.Controllers
                 courseToAdd.Id = courseId;
 
                 _courseLibraryRepository.AddCourse(authorId, courseToAdd);
-                _courseLibraryRepository.Save();
 
                 var courseToReturn = _mapper.Map<CourseDto>(courseToAdd);
 
@@ -178,8 +174,6 @@ namespace CourseLibrary.API.Controllers
 
             _courseLibraryRepository.UpdateCourse(courseForAuthorFromRepo.Result);
 
-            _courseLibraryRepository.Save();
-
             return NoContent();
 
         }
@@ -198,7 +192,6 @@ namespace CourseLibrary.API.Controllers
             { return NotFound(); }
 
             _courseLibraryRepository.DeleteCourse(courseForAuthorFromRepo.Result);
-            _courseLibraryRepository.Save();
 
             return NoContent();
         }
