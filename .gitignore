@@ -1,7 +1,11 @@
 
 .idea/
-CourseLibrary.API/obj/
-CourseLibrary.API/bin/
+CourseLibrary.API/obj/*
+CourseLibrary.API/bin/*
+Course.Finance/obj/*
+Course.Finance/bin/*
 .vs
 CourseLibrary.API/bin/Debug/netcoreapp3.1/CourseLibrary.API.dll
 CourseLibrary.API/bin/Debug/netcoreapp3.1/CourseLibrary.API.pdb
+Course.Finance/obj/Debug/net5.0/Course.Finance.assets.cache
+Course.Finance/obj/Debug/net5.0/Course.Finance.csprojAssemblyReference.cache

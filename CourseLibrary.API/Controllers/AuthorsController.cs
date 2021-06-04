@@ -61,7 +61,7 @@ namespace CourseLibrary.API.Controllers
                 return BadRequest();
             }
 
-            var authorsFromRepo = _courseLibraryRepository.GetAuthors(authorsResourceParameters);
+            var authorsFromRepo =  _courseLibraryRepository.GetAuthors(authorsResourceParameters).Result;
 
             #region Pagination details
 
@@ -131,7 +131,7 @@ namespace CourseLibrary.API.Controllers
                 return BadRequest();
             }
 
-            var authorFromRepo = _courseLibraryRepository.GetAuthor(authorId);
+            var authorFromRepo = _courseLibraryRepository.GetAuthor(authorId).Result;
 
             if (authorFromRepo == null)
             {
@@ -189,7 +189,6 @@ namespace CourseLibrary.API.Controllers
         {
             var authorEntity = _mapper.Map<Author>(author);
             _courseLibraryRepository.AddAuthor(authorEntity);
-            _courseLibraryRepository.Save();
 
             var authorToReturn = _mapper.Map<AuthorDto>(authorEntity);
 
@@ -214,7 +213,6 @@ namespace CourseLibrary.API.Controllers
         {
             var authorEntity = _mapper.Map<Author>(author);
             _courseLibraryRepository.AddAuthor(authorEntity);
-            _courseLibraryRepository.Save();
 
             var authorToReturn = _mapper.Map<AuthorDto>(authorEntity);
 
@@ -239,15 +237,13 @@ namespace CourseLibrary.API.Controllers
         [HttpDelete("{authorId}", Name ="DeleteAuthor")]
         public ActionResult DeleteAuthor(Guid authorId)
         {
-            var authorFromRepo = _courseLibraryRepository.GetAuthor(authorId);
+            var authorFromRepo = _courseLibraryRepository.GetAuthor(authorId).Result;
 
             if (authorFromRepo ==null)
             {
                 return NotFound();
             }
             _courseLibraryRepository.DeleteAuthor(authorFromRepo);
-
-            _courseLibraryRepository.Save();
 
             return NoContent();
         }

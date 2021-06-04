@@ -13,7 +13,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers" />
+      <ProjectReference Include="..\CourseLibrary.API\CourseLibrary.API.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Persistence\" />
     </ItemGroup>
 
 </Project>

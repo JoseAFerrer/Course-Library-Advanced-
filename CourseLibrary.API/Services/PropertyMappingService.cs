@@ -1,5 +1,6 @@
 ﻿using CourseLibrary.API.Entities;
 using CourseLibrary.API.Models;
+using CourseLibrary.API.Persistence.PersistenceModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace CourseLibrary.API.Services
 
         private IList<IPropertyMapping> _propertyMappings = new List<IPropertyMapping>();
 
-        public PropertyMappingService()
+        public PropertyMappingService() //CONSTRUCTOR
         {
             _propertyMappings.Add(new PropertyMapping<AuthorDto, Author>(_authorPropertyMapping));
         }
